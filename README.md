@@ -70,4 +70,4 @@ macOS).
 
 ## Author
 
-*(Your name / ECE 309, Fall 2026)*
+*(Oyewole Popoola / ECE 309, Fall 2026)*
