@@ -70,4 +70,4 @@ macOS).
 
 ## Author
 
-*(Oyewole Popoola / ECE 309, Fall 2026)*
+Oyewole P. — ECE 309, Fall 2026

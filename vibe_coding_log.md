@@ -66,9 +66,15 @@ inputs into `./harness`, greps the output for expected substrings
 - Ran `./harness` manually with inputs `hello`, `calc 10 * 5`, `history`,
   and `exit` — all behaved as expected.
 - Ran `bash test.sh` — all functional checks passed.
-- *(Add any additional bugs you hit and how you/the AI fixed them here —
-  e.g., "AI's first version of `tool_calculator` didn't handle division
-  by zero; asked it to add a check, it added the `b == 0` guard.")*
+- Manually tested the division-by-zero guard in `tool_calculator()` by
+  temporarily changing the check from `if (b == 0)` to `if (b == 1)` and
+  recompiling. Running `calc 5 / 0` with this change confirmed the
+  program no longer rejected the division and produced an incorrect
+  result instead of safely falling back. Reverting the condition to
+  `if (b == 0)`, recompiling, and re-running `calc 5 / 0` confirmed the
+  tool now correctly rejects the operation and the harness falls back
+  to the mock model instead of crashing or returning garbage output.
+  This confirmed the zero-check guard is working as intended.
 
 ## 5. Reflection
 
