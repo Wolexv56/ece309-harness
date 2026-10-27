@@ -1,73 +1,58 @@
-# ECE 309 Project 1 — LLM Mini-Harness in C
+# ECE 309 · Project 3 starter — Tool Use and the Tool Registry
 
-A minimal LLM agent harness written in standard C, built via vibe coding /
-Specification Driven Development (SDD).
+Read `P3_spec.md` (in this folder) first. This file only covers setting up the repo.
 
-## What It Does
+## 1. Bring your P2 code
 
-- **Core loop:** Reads user input from the terminal and prints a simulated
-  ("mock") model response.
-- **Context management:** Stores the last 5 conversation turns in a
-  dynamically allocated ring buffer, with all memory safely freed on exit.
-- **Tool execution:** Recognizes `calc <num> <op> <num>` and performs the
-  arithmetic directly via a calculator tool, instead of routing it through
-  the mock model — demonstrating how an agent harness delegates work an
-  LLM isn't suited for.
-- **History command:** Type `history` to view the stored conversation
-  turns.
+Copy four files from your P2 repo (details in `src/core/README.md`):
 
-## Files
+```
+include/core/conversation.h      include/core/sentinel_scanner.h
+src/core/conversation.cpp        src/core/sentinel_scanner.cpp
+```
 
-| File                  | Purpose                                              |
-|------------------------|-------------------------------------------------------|
-| `harness.c`            | Main C program (core loop, history, tool execution)  |
-| `test.sh`              | Automated Bash test script                            |
-| `vibe_coding_log.md`   | SDD process log — prompts used and AI responses        |
-| `README.md`            | This file                                              |
+Do **not** copy `message.h`; the P3 one adds `Role::Tool`.
 
-## Build
+If your P2 code doesn't work, build against the instructor's reference instead:
 
 ```bash
-gcc harness.c -o harness
+cmake -S . -B build -DUSE_P2_REFERENCE=ON
 ```
 
-Only standard C libraries are used (`<stdio.h>`, `<stdlib.h>`,
-`<string.h>`), so this should compile cleanly in any POSIX environment.
-
-## Run
+## 2. Build and test (Linux / WSL2)
 
 ```bash
-./harness
+cmake -S . -B build              # ASan + UBSan are on by default
+cmake --build build -j
+./build/test_p2                  # P2 regression: must pass before you start
+./build/test_loop                # provided tool-loop tests: pass once your 3 pieces work
+./build/test_p3                  # your P3 tests
+cd build && ctest --output-on-failure   # everything, plus the end-to-end goldens
 ```
 
-Example session:
-```
-You: hello
-Bot: Hello there! How can I help you today?
-You: calc 3 + 4
-Bot: [tool:calculator] Result = 7
-You: history
---- Conversation history (last 2 turns) ---
-  [1] You: hello
-      Bot: Hello there! How can I help you today?
-  [2] You: calc 3 + 4
-      Bot: [tool:calculator] Result = 7
---------------------------------------------
-You: exit
-Bot: Goodbye!
-```
+To check that you compile with zero warnings, as the grader does, add
+`-DMH_WERROR=ON` to the configure line.
 
-## Test
+## 3. Try the harness
 
 ```bash
-bash test.sh
+./build/miniharness --no-tools --script scripts/greeting.script   # works on day 1
+./build/miniharness --tools                                       # needs your ToolRegistry
+./build/miniharness --script scripts/tools_demo.script            # needs all three pieces
+./build/miniharness --script scripts/escape_attempt.script
 ```
 
-This pipes a predefined sequence of inputs into the compiled program,
-checks the outputs match expected values, and attempts a memory leak
-check (`valgrind` on Linux, or a manual `leaks` command suggested on
-macOS).
+`tools_demo` writes `workspace/notes/summary.txt`. That's fine: the e2e tests
+use their own copy in `tests/e2e/workspace/`. To start the demo over, delete
+that file.
 
-## Author
+## 4. What is yours
 
-Oyewole P. — ECE 309, Fall 2026
+| File | Status |
+|---|---|
+| `src/tools/tool_registry.cpp` and the private section of `include/tools/tool_registry.h` | **you implement** (45 pts) |
+| `src/tools/workspace.cpp` (`Workspace::resolve` only) | **you implement** (15 pts) |
+| `src/tools/calculator_eval.cpp` (`calc_evaluate`) | **you implement** (10 pts) |
+| `tests/p3/test_p3.cpp` (≥ 15 tests) | **you write** |
+| `docs/design-log-p3.md` | **you write** |
+| everything else | provided, do not modify |
